@@ -1,0 +1,12 @@
+name: MusicalMobs
+version: @VERSION@
+main: be.isach.musicalmobs.MusicalMobs
+author: iSach
+load: POSTWORLD
+api-version: 1.13
+softdepend: [NoteBlockAPI]
+commands:
+  musicalmobs:
+    usage: /musicalmobs
+    aliases: [mm]
+    description: Main Command of Musical Mobs

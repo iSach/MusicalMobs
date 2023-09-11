@@ -1,0 +1,137 @@
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+
+    group = 'be.isach'
+    version = '2.0-RELEASE'
+
+    compileJava.options.encoding = 'UTF-8'
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
+
+    configurations {
+        shaded
+        compile.extendsFrom shaded
+    }
+
+    processResources {
+        inputs.property("version", project.version)
+
+        filter org.apache.tools.ant.filters.ReplaceTokens, tokens: [
+                'VERSION': project.version.split('-')[0]
+        ]
+    }
+
+    afterEvaluate {
+        jar {
+            dependsOn configurations.shaded
+            from configurations.shaded.collect {
+                it.isDirectory() ?
+                        it :
+                        zipTree(it)
+            }
+        }
+    }
+}
+
+boolean local = false
+
+if (local) libsDirName = '../testserver/plugins'
+
+dependencies {
+    subprojects.each { p ->
+        shaded(p) {
+            transitive false
+        }
+    }
+}
+
+subprojects { subproj ->
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url 'https://jitpack.io'
+        }
+        maven {
+            url 'https://nexus.hc.to/content/repositories/pub_releases'
+        }
+        maven {
+            url = 'https://libraries.minecraft.net/'
+        }
+        maven {
+            url 'https://repo.isach.be'
+        }
+        // Spigot for 1.16.4
+        maven {
+            url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+        }
+        maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
+        maven { url = 'https://oss.sonatype.org/content/repositories/central' }
+
+    }
+    def version = 8
+    if (subproj.hasProperty("javaVersion")) {
+        version = subproj.property("javaVersion")
+    }
+    subproj.tasks.withType(JavaCompile).configureEach {
+        javaCompiler = javaToolchains.compilerFor {
+            languageVersion = JavaLanguageVersion.of(version)
+        }
+    }
+}
+
+subprojects.each {
+    if (!it.hasProperty("remapMcVersion")) return
+    tasks.register("obf" + it.name, VersionedObfTask, it)
+}
+
+abstract class VersionedObfTask extends DefaultTask {
+    private Project subproj;
+    @Inject
+    public VersionedObfTask(Project subproj) {
+        this.subproj = subproj
+        dependsOn 'jar'
+        description 'Generates an obfuscated version of the jar for use with Spigot.'
+        group = 'jar preparation'
+        ext.toolingDir = System.getProperty("user.dir")
+        ext.homeDir = project.gradle.gradleUserHomeDir.parent
+    }
+    @TaskAction
+    def go() {
+        def nms = subproj.name
+        def mcVer = subproj.getProperty("remapMcVersion")
+        println("nms: " + nms)
+        println("mcVer: " + mcVer)
+        project.exec {
+            workingDir project.buildDir
+            commandLine 'java', '-cp', ext.toolingDir + '/tooling/specialsource/SpecialSource.jar' + File.pathSeparator + ext.homeDir + "/.m2/repository/org/spigotmc/spigot/$mcVer-R0.1-SNAPSHOT/spigot-$mcVer-R0.1-SNAPSHOT-remapped-mojang.jar",
+                    'net.md_5.specialsource.SpecialSource', '--live', '--only', "be/isach/musicalmobs/$nms", '-q',
+                    '-i', 'libs/' + project.name + '-' + project.version + '.jar',
+                    '-o', 'libs/' + project.name + '-' + project.version + '-obf.jar',
+                    '-m', ext.homeDir + "/.m2/repository/org/spigotmc/minecraft-server/$mcVer-R0.1-SNAPSHOT/minecraft-server-$mcVer-R0.1-SNAPSHOT-maps-mojang.txt",
+                    '--reverse'
+        }
+        project.exec {
+            workingDir project.buildDir
+            commandLine 'java', '-cp', ext.toolingDir + '/tooling/specialsource/SpecialSource.jar' + File.pathSeparator + ext.homeDir + "/.m2/repository/org/spigotmc/spigot/$mcVer-R0.1-SNAPSHOT/spigot-$mcVer-R0.1-SNAPSHOT-remapped-obf.jar",
+                    'net.md_5.specialsource.SpecialSource', '--live', '--only', "be/isach/musicalmobs/$nms", '-q',
+                    '-i', 'libs/' + project.name + '-' + project.version + '-obf.jar',
+                    '-o', 'libs/' + project.name + '-' + project.version + '.jar',
+                    '-m', ext.homeDir + "/.m2/repository/org/spigotmc/minecraft-server/$mcVer-R0.1-SNAPSHOT/minecraft-server-$mcVer-R0.1-SNAPSHOT-maps-spigot.csrg"
+        }
+        project.exec {
+            workingDir project.buildDir
+            commandLine 'rm', '-f', 'libs/' + project.name + '-' + project.version + '-obf.jar'
+        }
+    }
+}
+tasks.register("obfuscate") {
+    dependsOn tasks.withType(VersionedObfTask)
+    group = 'jar preparation'
+}
