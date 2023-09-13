@@ -49,9 +49,9 @@ public class SignsManager implements Listener {
             ConfigurationSection section = SettingsManager.getSigns().get("signs." + str);
 
             String world = SettingsManager.getSigns().get("signs." + str + ".location.world");
-            int x = Integer.parseInt(String.valueOf(SettingsManager.getSigns().get("signs." + str + ".location.x")));
-            int y = Integer.parseInt(String.valueOf(SettingsManager.getSigns().get("signs." + str + ".location.y")));
-            int z = Integer.parseInt(String.valueOf(SettingsManager.getSigns().get("signs." + str + ".location.z")));
+            int x = SettingsManager.getSigns().getInt("signs." + str + ".location.x");
+            int y = SettingsManager.getSigns().getInt("signs." + str + ".location.y");
+            int z = SettingsManager.getSigns().getInt("signs." + str + ".location.z");
             Location loc = new Location(Bukkit.getWorld(world), x, y, z);
             Sign s = (Sign) loc.getBlock().getState();
 
@@ -204,9 +204,9 @@ public class SignsManager implements Listener {
                         int bX = event.getBlock().getLocation().getBlockX();
                         int bY = event.getBlock().getLocation().getBlockY();
                         int bZ = event.getBlock().getLocation().getBlockZ();
-                        int x = (int) SettingsManager.getSigns().get("signs." + j + ".location.x");
-                        int y = (int) SettingsManager.getSigns().get("signs." + j + ".location.y");
-                        int z = (int) SettingsManager.getSigns().get("signs." + j + ".location.z");
+                        int x = SettingsManager.getSigns().getInt("signs." + j + ".location.x");
+                        int y = SettingsManager.getSigns().getInt("signs." + j + ".location.y");
+                        int z = SettingsManager.getSigns().getInt("signs." + j + ".location.z");
                         if (x == bX && y == bY && z == bZ) {
                             k = j;
                         }
@@ -270,9 +270,9 @@ public class SignsManager implements Listener {
                             int bX = b.getRelative(f).getLocation().getBlockX();
                             int bY = b.getRelative(f).getLocation().getBlockY();
                             int bZ = b.getRelative(f).getLocation().getBlockZ();
-                            int x = (int) SettingsManager.getSigns().get("signs." + j + ".location.x");
-                            int y = (int) SettingsManager.getSigns().get("signs." + j + ".location.y");
-                            int z = (int) SettingsManager.getSigns().get("signs." + j + ".location.z");
+                            int x = SettingsManager.getSigns().getInt("signs." + j + ".location.x");
+                            int y = SettingsManager.getSigns().getInt("signs." + j + ".location.y");
+                            int z = SettingsManager.getSigns().getInt("signs." + j + ".location.z");
                             if (x == bX && y == bY && z == bZ) {
                                 k = j;
                             }

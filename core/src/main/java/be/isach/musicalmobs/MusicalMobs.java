@@ -10,6 +10,7 @@ import be.isach.musicalmobs.listeners.PlayerListener;
 import be.isach.musicalmobs.listeners.SignsManager;
 import be.isach.musicalmobs.nms.ServerVersion;
 import be.isach.musicalmobs.nms.VersionManager;
+import be.isach.musicalmobs.util.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -27,6 +28,7 @@ public class MusicalMobs extends JavaPlugin {
     public static MusicalMobs instance;
     private ServerVersion serverVersion;
     private VersionManager versionManager;
+    private Metrics metrics;
 
     /**
      * Called on plugin start.
@@ -57,6 +59,8 @@ public class MusicalMobs extends JavaPlugin {
 
         // Load the song from jar src to plugin directory.
         loadSongs();
+
+        this.metrics = new Metrics(this, 5435);
     }
 
     /**

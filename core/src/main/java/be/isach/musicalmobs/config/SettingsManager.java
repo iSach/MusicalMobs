@@ -117,6 +117,10 @@ public class SettingsManager {
         return (T) config.get(path);
     }
 
+    public int getInt(String path) {
+        return config.getInt(path);
+    }
+
     /**
      * @param path
      * @return {@code true} if the config contains the path, {@code false} otherwise.
