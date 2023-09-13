@@ -82,19 +82,14 @@ public class MusicalMobs extends JavaPlugin {
     private void loadSongs() {
         File folder = new File(getDataFolder().getPath() + "/songs/");
         if ((!folder.exists()) || (folder.listFiles().length <= 0)) {
-
             saveResource("songs/Animals.nbs", true);
             saveResource("songs/DJGotUsFallinInLove.nbs", true);
             saveResource("songs/Fireflies.nbs", true);
             saveResource("songs/GangnamStyle.nbs", true);
-            saveResource("songs/HoldTheLine.nbs", true);
-            saveResource("songs/NothingElseMatters.nbs", true);
             saveResource("songs/NyanCat.nbs", true);
-            saveResource("songs/PushingOnwards.nbs", true);
-            saveResource("songs/Remedy.nbs", true);
+            saveResource("songs/PokemonBattleTheme.nbs", true);
             saveResource("songs/Sweden.nbs", true);
             saveResource("songs/TetrisATheme.nbs", true);
-            saveResource("songs/TheEdgeofGlory.nbs", true);
             saveResource("songs/WhatisLove.nbs", true);
         }
     }
